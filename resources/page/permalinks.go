@@ -95,7 +95,7 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 		"filename":              p.pageToPermalinkFilename,
 		"contentbasename":       p.pageToPermalinkContentBaseName,
 		"slugorcontentbasename": p.pageToPermalinkSlugOrContentBaseName,
-		"sectionstranslit": p.pageToPermalinkSectionsTranslit,
+		"sectionstranslit":      p.pageToPermalinkSectionsTranslit,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -310,7 +310,6 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, error) {
 	return p.CurrentSection().SectionsPath(), nil
 }
-
 
 func (l PermalinkExpander) pageToPermalinkSectionsTranslit(p Page, _ string) (string, error) {
 	trans := transliterator.NewTransliterator(nil)
