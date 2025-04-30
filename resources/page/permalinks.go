@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexsergivan/transliterator"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
@@ -94,6 +95,7 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 		"filename":              p.pageToPermalinkFilename,
 		"contentbasename":       p.pageToPermalinkContentBaseName,
 		"slugorcontentbasename": p.pageToPermalinkSlugOrContentBaseName,
+		"sectionstranslit": p.pageToPermalinkSectionsTranslit,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -307,6 +309,12 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 
 func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, error) {
 	return p.CurrentSection().SectionsPath(), nil
+}
+
+
+func (l PermalinkExpander) pageToPermalinkSectionsTranslit(p Page, _ string) (string, error) {
+	trans := transliterator.NewTransliterator(nil)
+	return trans.Transliterate(p.CurrentSection().SectionsPath(), ""), nil
 }
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
