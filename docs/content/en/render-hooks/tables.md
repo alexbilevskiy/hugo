@@ -12,13 +12,11 @@ weight: 90
 toc: true
 ---
 
-{{< new-in 0.134.0 >}}
+{{< new-in 0.134.0 />}}
 
 ## Context
 
-Table render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Table render hook templates receive the following [context](g):
 
 ###### Attributes
 
@@ -82,7 +80,11 @@ In its default configuration, Hugo renders Markdown tables according to the [Git
     {{- range .THead }}
       <tr>
         {{- range . }}
-          <th {{ printf "style=%q" (printf "text-align: %s" .Alignment) | safeHTMLAttr }}>
+          <th
+            {{- with .Alignment }}
+              {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+            {{- end -}}
+          >
             {{- .Text -}}
           </th>
         {{- end }}
@@ -93,7 +95,11 @@ In its default configuration, Hugo renders Markdown tables according to the [Git
     {{- range .TBody }}
       <tr>
         {{- range . }}
-          <td {{ printf "style=%q" (printf "text-align: %s" .Alignment) | safeHTMLAttr }}>
+          <td
+            {{- with .Alignment }}
+              {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+            {{- end -}}
+          >
             {{- .Text -}}
           </td>
         {{- end }}

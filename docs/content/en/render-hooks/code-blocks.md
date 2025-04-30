@@ -54,9 +54,7 @@ Although `style` is a global HTML attribute, when used in an info string it is a
 
 ## Context
 
-Code block render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Code block render hook templates receive the following [context](g):
 
 ###### Attributes
 
@@ -80,7 +78,7 @@ Code block render hook templates receive the following [context]:
 
 ###### PageInner
 
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 
 (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
@@ -122,7 +120,7 @@ For example, to create a code block render hook to render [Mermaid] diagrams:
 
 {{< code file=layouts/_default/_markup/render-codeblock-mermaid.html copy=true >}}
 <pre class="mermaid">
-  {{- .Inner | safeHTML }}
+  {{- .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 {{< /code >}}

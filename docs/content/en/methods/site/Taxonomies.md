@@ -9,13 +9,6 @@ action:
   signatures: [SITE.Taxonomies]
 ---
 
-<!-- TODO
-Show template example: GetTerms
-
-
-
--->
-
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
 {{< code-toggle >}}
@@ -75,7 +68,6 @@ authors:
   - jausten:
     - Pride and Prejudice
 {{< /code-toggle >}}
-
 
 To list the "suspense" books:
 

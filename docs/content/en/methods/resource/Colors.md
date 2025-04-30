@@ -11,8 +11,6 @@ toc: true
 math: true
 ---
 
-{{< new-in 0.104.0 >}}
-
 The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
 
 {{% include "methods/resource/_common/global-page-remote-resources.md" %}}
@@ -22,11 +20,11 @@ The `Resources.Colors` method returns a slice of the most dominant colors in an 
 Each color is an object with the following methods:
 
 ColorHex
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
 
 Luminance
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 {{% note %}}
@@ -170,7 +168,6 @@ Calculate the contrast ratio to determine WCAG conformance:
   {{ end }}
 {{ end }}
 ```
-
 
 [WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines
 [contrast ratio]: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio

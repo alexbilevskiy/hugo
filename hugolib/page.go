@@ -16,7 +16,9 @@ package hugolib
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -36,7 +38,6 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/source"
@@ -142,12 +143,16 @@ func (p *pageState) GetDependencyManagerForScope(scope int) identity.Manager {
 	}
 }
 
+func (p *pageState) GetDependencyManagerForScopesAll() []identity.Manager {
+	return []identity.Manager{p.dependencyManager, p.dependencyManagerOutput}
+}
+
 func (p *pageState) Key() string {
 	return "page-" + strconv.FormatUint(p.pid, 10)
 }
 
 func (p *pageState) resetBuildState() {
-	p.Scratcher = maps.NewScratcher()
+	// Nothing to do for now.
 }
 
 func (p *pageState) reusePageOutputContent() bool {
@@ -178,10 +183,6 @@ func (po *pageState) isRenderedAny() bool {
 
 func (p *pageState) isContentNodeBranch() bool {
 	return p.IsNode()
-}
-
-func (p *pageState) Err() resource.ResourceError {
-	return nil
 }
 
 // Eq returns whether the current page equals the given page.
@@ -358,7 +359,22 @@ func (p *pageState) Site() page.Site {
 }
 
 func (p *pageState) String() string {
-	return fmt.Sprintf("Page(%s)", p.Path())
+	var sb strings.Builder
+	if p.File() != nil {
+		// The forward slashes even on Windows is motivated by
+		// getting stable tests.
+		// This information is meant for getting positional information in logs,
+		// so the direction of the slashes should not matter.
+		sb.WriteString(filepath.ToSlash(p.File().Filename()))
+		if p.File().IsContentAdapter() {
+			// Also include the path.
+			sb.WriteString(":")
+			sb.WriteString(p.Path())
+		}
+	} else {
+		sb.WriteString(p.Path())
+	}
+	return sb.String()
 }
 
 // IsTranslated returns whether this content file is translated to

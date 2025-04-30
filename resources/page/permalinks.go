@@ -24,7 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexsergivan/transliterator"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
@@ -80,20 +79,21 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 	}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
-		"year":             p.pageToPermalinkDate,
-		"month":            p.pageToPermalinkDate,
-		"monthname":        p.pageToPermalinkDate,
-		"day":              p.pageToPermalinkDate,
-		"weekday":          p.pageToPermalinkDate,
-		"weekdayname":      p.pageToPermalinkDate,
-		"yearday":          p.pageToPermalinkDate,
-		"section":          p.pageToPermalinkSection,
-		"sections":         p.pageToPermalinkSections,
-		"sectionstranslit": p.pageToPermalinkSectionsTranslit,
-		"title":            p.pageToPermalinkTitle,
-		"slug":             p.pageToPermalinkSlugElseTitle,
-		"slugorfilename":   p.pageToPermalinkSlugElseFilename,
-		"filename":         p.pageToPermalinkFilename,
+		"year":                  p.pageToPermalinkDate,
+		"month":                 p.pageToPermalinkDate,
+		"monthname":             p.pageToPermalinkDate,
+		"day":                   p.pageToPermalinkDate,
+		"weekday":               p.pageToPermalinkDate,
+		"weekdayname":           p.pageToPermalinkDate,
+		"yearday":               p.pageToPermalinkDate,
+		"section":               p.pageToPermalinkSection,
+		"sections":              p.pageToPermalinkSections,
+		"title":                 p.pageToPermalinkTitle,
+		"slug":                  p.pageToPermalinkSlugElseTitle,
+		"slugorfilename":        p.pageToPermalinkSlugElseFilename,
+		"filename":              p.pageToPermalinkFilename,
+		"contentbasename":       p.pageToPermalinkContentBaseName,
+		"slugorcontentbasename": p.pageToPermalinkSlugOrContentBaseName,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -309,9 +309,21 @@ func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, er
 	return p.CurrentSection().SectionsPath(), nil
 }
 
-func (l PermalinkExpander) pageToPermalinkSectionsTranslit(p Page, _ string) (string, error) {
-	trans := transliterator.NewTransliterator(nil)
-	return trans.Transliterate(p.CurrentSection().SectionsPath(), ""), nil
+// pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
+func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
+	return l.urlize(p.PathInfo().BaseNameNoIdentifier()), nil
+}
+
+// pageToPermalinkSlugOrContentBaseName returns the URL-safe form of the slug, content base name.
+func (l PermalinkExpander) pageToPermalinkSlugOrContentBaseName(p Page, a string) (string, error) {
+	if p.Slug() != "" {
+		return l.urlize(p.Slug()), nil
+	}
+	name, err := l.pageToPermalinkContentBaseName(p, a)
+	if err != nil {
+		return "", nil
+	}
+	return name, nil
 }
 
 func (l PermalinkExpander) translationBaseName(p Page) string {

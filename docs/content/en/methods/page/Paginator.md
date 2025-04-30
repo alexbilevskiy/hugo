@@ -10,19 +10,18 @@ action:
   signatures: [PAGE.Paginator]
 ---
 
-[Pagination] is the process of splitting a list page into two or more pagers, where each pager contains a subset of the page collection and navigation links to other pagers.
+Pagination is the process of splitting a list page into two or more pagers, where each pager contains a subset of the page collection and navigation links to other pagers.
 
 The number of elements on each pager is determined by your [site configuration]. The default is `10`.
 
 [site configuration]: /getting-started/configuration/#pagination
 
-You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates]. Each of these receives a collection of regular pages in [context]. When you invoke the `Paginator` method, it paginates the page collection received in context.
+You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates]. Each of these receives a collection of regular pages in [context](g). When you invoke the `Paginator` method, it paginates the page collection received in context.
 
 [home template]: /templates/types/#home
 [section templates]: /templates/types/#section
 [taxonomy templates]: /templates/types/#taxonomy
 [term templates]: /templates/types/#term
-[context]: /getting-started/glossary/#context
 
 {{< code file=layouts/_default/list.html >}}
 {{ range .Paginator.Pages }}

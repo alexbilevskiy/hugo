@@ -17,6 +17,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -50,14 +51,6 @@ type AlternativeOutputFormatsProvider interface {
 	AlternativeOutputFormats() OutputFormats
 }
 
-// AuthorProvider provides author information.
-type AuthorProvider interface {
-	// Deprecated: Use taxonomies instead.
-	Author() Author
-	// Deprecated: Use taxonomies instead.
-	Authors() AuthorList
-}
-
 // ChildCareProvider provides accessors to child resources.
 type ChildCareProvider interface {
 	// Pages returns a list of pages of all kinds.
@@ -70,8 +63,7 @@ type ChildCareProvider interface {
 	// section.
 	RegularPagesRecursive() Pages
 
-	// Resources returns a list of all resources.
-	Resources() resource.Resources
+	resource.ResourcesProvider
 }
 
 type MarkupProvider interface {
@@ -180,6 +172,7 @@ type Page interface {
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
+	fmt.Stringer
 }
 
 type PageFragment interface {
@@ -307,9 +300,6 @@ type PageWithoutContent interface {
 	Positioner
 	navigation.PageMenusProvider
 
-	// TODO(bep)
-	AuthorProvider
-
 	// Page lookups/refs
 	GetPageProvider
 	RefProvider
@@ -325,11 +315,11 @@ type PageWithoutContent interface {
 
 	// Scratch returns a Scratch that can be used to store temporary state.
 	// Note that this Scratch gets reset on server rebuilds. See Store() for a variant that survives.
-	maps.Scratcher
+	// Scratch returns a "scratch pad" that can be used to store state.
+	// Deprecated: From Hugo v0.138.0 this is just an alias for Store.
+	Scratch() *maps.Scratch
 
-	// Store returns a Scratch that can be used to store temporary state.
-	// In contrast to Scratch(), this Scratch is not reset on server rebuilds.
-	Store() *maps.Scratch
+	maps.StoreProvider
 
 	RelatedKeywordsProvider
 

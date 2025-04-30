@@ -22,7 +22,7 @@ import (
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -54,13 +54,6 @@ func (fi *File) Path() string { return filepath.Join(fi.p().Dir()[1:], fi.p().Na
 // relative to the content root.
 func (fi *File) Dir() string {
 	return fi.pathToDir(fi.p().Dir())
-}
-
-// Extension is an alias to Ext().
-// Deprecated: Use Ext() instead.
-func (fi *File) Extension() string {
-	hugo.Deprecate(".File.Extension", "Use .File.Ext instead.", "v0.96.0")
-	return fi.Ext()
 }
 
 // Ext returns a file's extension without the leading period (e.g. "md").
@@ -139,10 +132,17 @@ func (fi *File) p() *paths.Path {
 	return fi.fim.Meta().PathInfo.Unnormalized()
 }
 
-func NewFileInfoFrom(path, filename string) *File {
+var contentPathParser = &paths.PathParser{
+	IsContentExt: func(ext string) bool {
+		return true
+	},
+}
+
+// Used in tests.
+func NewContentFileInfoFrom(path, filename string) *File {
 	meta := &hugofs.FileMeta{
 		Filename: filename,
-		PathInfo: media.DefaultPathParser.Parse("", filepath.ToSlash(path)),
+		PathInfo: contentPathParser.Parse(files.ComponentFolderContent, filepath.ToSlash(path)),
 	}
 
 	return NewFileInfo(hugofs.NewFileMetaInfo(nil, meta))

@@ -85,7 +85,8 @@ type HugoSites struct {
 
 	pageTrees *pageTrees
 
-	postRenderInit sync.Once
+	printUnusedTemplatesInit sync.Once
+	printPathWarningsInit    sync.Once
 
 	// File change events with filename stored in this map will be skipped.
 	skipRebuildForFilenamesMu sync.Mutex
@@ -109,6 +110,10 @@ func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
 	h.skipRebuildForFilenamesMu.Lock()
 	defer h.skipRebuildForFilenamesMu.Unlock()
 	return h.skipRebuildForFilenames[ev.Name]
+}
+
+func (h *HugoSites) Close() error {
+	return h.Deps.Close()
 }
 
 func (h *HugoSites) isRebuild() bool {
@@ -178,9 +183,6 @@ func (f *fatalErrorHandler) Done() <-chan bool {
 type hugoSitesInit struct {
 	// Loads the data from all of the /data folders.
 	data *lazy.Init
-
-	// Performs late initialization (before render) of the templates.
-	layouts *lazy.Init
 
 	// Loads the Git info and CODEOWNERS for all the pages if enabled.
 	gitInfo *lazy.Init
@@ -415,8 +417,8 @@ type BuildCfg struct {
 	// Set in server mode when the last build failed for some reason.
 	ErrRecovery bool
 
-	// Recently visited URLs. This is used for partial re-rendering.
-	RecentlyVisited *types.EvictingStringQueue
+	// Recently visited or touched URLs. This is used for partial re-rendering.
+	RecentlyTouched *types.EvictingQueue[string]
 
 	// Can be set to build only with a sub set of the content source.
 	ContentInclusionFilter *glob.FilenameFilter
@@ -428,7 +430,7 @@ type BuildCfg struct {
 }
 
 // shouldRender returns whether this output format should be rendered or not.
-func (cfg *BuildCfg) shouldRender(p *pageState) bool {
+func (cfg *BuildCfg) shouldRender(infol logg.LevelLogger, p *pageState) bool {
 	if p.skipRender() {
 		return false
 	}
@@ -456,18 +458,20 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 		return false
 	}
 
-	if p.outputFormat().IsHTML {
-		// This is fast render mode and the output format is HTML,
-		// rerender if this page is one of the recently visited.
-		return cfg.RecentlyVisited.Contains(p.RelPermalink())
+	if relURL := p.getRelURL(); relURL != "" {
+		if cfg.RecentlyTouched.Contains(relURL) {
+			infol.Logf("render recently touched URL %q (%s)", relURL, p.outputFormat().Name)
+			return true
+		}
 	}
 
 	// In fast render mode, we want to avoid re-rendering the sitemaps etc. and
 	// other big listings whenever we e.g. change a content file,
-	// but we want partial renders of the recently visited pages to also include
+	// but we want partial renders of the recently touched pages to also include
 	// alternative formats of the same HTML page (e.g. RSS, JSON).
 	for _, po := range p.pageOutputs {
-		if po.render && po.f.IsHTML && cfg.RecentlyVisited.Contains(po.RelPermalink()) {
+		if po.render && po.f.IsHTML && cfg.RecentlyTouched.Contains(po.getRelURL()) {
+			infol.Logf("render recently touched URL %q, %s version of %s", po.getRelURL(), po.f.Name, p.outputFormat().Name)
 			return true
 		}
 	}

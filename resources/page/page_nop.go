@@ -21,7 +21,6 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -59,12 +58,6 @@ var (
 // PageNop implements Page, but does nothing.
 type nopPage int
 
-var noOpPathInfo = media.DefaultPathParser.Parse(files.ComponentFolderContent, "no-op.md")
-
-func (p *nopPage) Err() resource.ResourceError {
-	return nil
-}
-
 func (p *nopPage) Aliases() []string {
 	return nil
 }
@@ -75,20 +68,6 @@ func (p *nopPage) Sitemap() config.SitemapConfig {
 
 func (p *nopPage) Layout() string {
 	return ""
-}
-
-func (p *nopPage) RSSLink() template.URL {
-	return ""
-}
-
-// Deprecated: Use taxonomies instead.
-func (p *nopPage) Author() Author {
-	return Author{}
-}
-
-// Deprecated: Use taxonomies instead.
-func (p *nopPage) Authors() AuthorList {
-	return nil
 }
 
 func (p *nopPage) AllTranslations() Pages {
@@ -165,14 +144,6 @@ func (p *nopPage) Eq(other any) bool {
 
 func (p *nopPage) ExpiryDate() (t time.Time) {
 	return
-}
-
-func (p *nopPage) Ext() string {
-	return ""
-}
-
-func (p *nopPage) Extension() string {
-	return ""
 }
 
 func (p *nopPage) File() *source.File {
@@ -364,7 +335,7 @@ func (p *nopPage) Path() string {
 }
 
 func (p *nopPage) PathInfo() *paths.Path {
-	return noOpPathInfo
+	return nil
 }
 
 func (p *nopPage) Permalink() string {
